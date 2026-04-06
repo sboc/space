@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { PLANETS, SUN_DATA, findBodyById } from '../../data/solarSystem';
+import { PLANETS, SUN_DATA, NEARBY_STARS, findBodyById } from '../../data/solarSystem';
 import { useSimulationStore } from '../../store/simulationStore';
 
 export function FocusMenu() {
   const [open, setOpen] = useState(false);
   const focusedBodyId = useSimulationStore((s) => s.focusedBodyId);
   const setFocus = useSimulationStore((s) => s.setFocus);
+  const isFollowing = useSimulationStore((s) => s.isFollowing);
+  const setFollowing = useSimulationStore((s) => s.setFollowing);
 
   const focused = focusedBodyId ? findBodyById(focusedBodyId) : null;
 
@@ -16,9 +18,20 @@ export function FocusMenu() {
 
   return (
     <div className="focus-menu">
-      <button className="focus-btn" onClick={() => setOpen((o) => !o)}>
-        {focused ? focused.name : 'Free Camera'} ▾
-      </button>
+      <div className="focus-row">
+        <button className="focus-btn" onClick={() => setOpen((o) => !o)}>
+          {focused ? focused.name : 'Free Camera'} ▾
+        </button>
+        {focusedBodyId && (
+          <button
+            className={`follow-btn${isFollowing ? ' active' : ''}`}
+            onClick={() => setFollowing(!isFollowing)}
+            title={isFollowing ? 'Stop following' : 'Follow this body'}
+          >
+            {isFollowing ? '⦿ Following' : '◎ Follow'}
+          </button>
+        )}
+      </div>
       {open && (
         <div className="focus-dropdown">
           <button className="focus-item" onClick={() => handleSelect(null)}>
@@ -42,6 +55,12 @@ export function FocusMenu() {
                 </button>
               ))}
             </div>
+          ))}
+          <div className="focus-section-label">Nearby Stars</div>
+          {NEARBY_STARS.map((star) => (
+            <button key={star.id} className="focus-item focus-star" onClick={() => handleSelect(star.id)}>
+              {star.name}
+            </button>
           ))}
         </div>
       )}

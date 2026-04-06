@@ -4,6 +4,7 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import type { BodyData } from '../../data/solarSystem';
 import { useSimulationStore } from '../../store/simulationStore';
+import { getBodyTexture, BODY_ROUGHNESS, BODY_METALNESS } from '../../utils/planetTextures';
 
 interface Props {
   data: BodyData;
@@ -18,18 +19,19 @@ export function Moon({ data }: Props) {
     const { isPaused, timeScale } = useSimulationStore.getState();
     if (!isPaused) {
       const rotSpeed = (2 * Math.PI) / (data.rotationPeriod / 24);
-      meshRef.current.rotation.y += rotSpeed * delta * timeScale;
+      const visualSpeed = Math.min(rotSpeed * timeScale, 2 * Math.PI);
+      meshRef.current.rotation.y += visualSpeed * delta;
     }
   });
 
   return (
     <>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[data.radius, 20, 20]} />
+        <sphereGeometry args={[data.radius, 32, 32]} />
         <meshStandardMaterial
-          color={data.color}
-          roughness={0.9}
-          metalness={0}
+          map={getBodyTexture(data.id)}
+          roughness={BODY_ROUGHNESS[data.id] ?? 0.85}
+          metalness={BODY_METALNESS[data.id] ?? 0}
         />
       </mesh>
       <Html

@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import type { BodyData } from '../../data/solarSystem';
 import { useSimulationStore } from '../../store/simulationStore';
 import { RingSystem } from './RingSystem';
+import { getBodyTexture, BODY_ROUGHNESS, BODY_METALNESS } from '../../utils/planetTextures';
 
 const DEG2RAD = Math.PI / 180;
 
@@ -21,7 +22,9 @@ export function Planet({ data }: Props) {
     const { isPaused, timeScale } = useSimulationStore.getState();
     if (!isPaused) {
       const rotSpeed = (2 * Math.PI) / (data.rotationPeriod / 24);
-      meshRef.current.rotation.y += rotSpeed * delta * timeScale;
+      // Cap visual rotation at 1 rev/s — beyond that the texture aliases badly
+      const visualSpeed = Math.min(rotSpeed * timeScale, 2 * Math.PI);
+      meshRef.current.rotation.y += visualSpeed * delta;
     }
   });
 
@@ -29,13 +32,13 @@ export function Planet({ data }: Props) {
     <>
       <group rotation={[0, 0, data.axialTilt * DEG2RAD]}>
         <mesh ref={meshRef}>
-          <sphereGeometry args={[data.radius, 32, 32]} />
+          <sphereGeometry args={[data.radius, 48, 48]} />
           <meshStandardMaterial
-            color={data.color}
+            map={getBodyTexture(data.id)}
             emissive={data.emissive}
             emissiveIntensity={data.emissiveIntensity}
-            roughness={0.8}
-            metalness={0.05}
+            roughness={BODY_ROUGHNESS[data.id] ?? 0.75}
+            metalness={BODY_METALNESS[data.id] ?? 0}
           />
         </mesh>
         {data.rings && <RingSystem data={data.rings} bodyRadius={data.radius} />}

@@ -4,19 +4,30 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import type { BodyData } from '../../data/solarSystem';
 import { useSimulationStore } from '../../store/simulationStore';
-import { getSunTexture, getCoronaTexture } from '../../utils/planetTextures';
+import { getStarCoronaTexture } from '../../utils/planetTextures';
 
 const DEG2RAD = Math.PI / 180;
 
 interface Props { data: BodyData; }
 
-export function Sun({ data }: Props) {
+export function NearbyStar({ data }: Props) {
   'use no memo';
   const meshRef   = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
 
-  const sunTexture = useMemo(() => getSunTexture(),    []);
-  const coronaTex  = useMemo(() => getCoronaTexture(), []);
+  const coronaTex = useMemo(() => {
+    const c = new THREE.Color(data.color);
+    return getStarCoronaTexture(
+      Math.round(c.r * 255),
+      Math.round(c.g * 255),
+      Math.round(c.b * 255),
+    );
+  }, [data.color]);
+
+  const pos = data.position ?? [0, 0, 0];
+  // Minimum corona size ensures dim M-dwarfs remain visible at distance
+  const coronaSize = Math.max(data.radius * 8, 5);
+  const labelHeight = Math.max(data.radius * 2, 4);
 
   useFrame((_state, delta) => {
     'use no memo';
@@ -25,39 +36,38 @@ export function Sun({ data }: Props) {
     const rotSpeed = (2 * Math.PI) / (data.rotationPeriod / 24);
     meshRef.current.rotation.y += rotSpeed * delta * timeScale;
     // Gentle corona pulse
-    const pulse = 1 + Math.sin(_state.clock.elapsedTime * 0.6) * 0.04;
-    coronaRef.current.scale.setScalar(data.radius * 5.5 * pulse);
+    const pulse = 1 + Math.sin(_state.clock.elapsedTime * 0.5) * 0.05;
+    coronaRef.current.scale.setScalar(coronaSize * pulse);
   });
 
   return (
-    <group>
-      <pointLight intensity={18} distance={0} decay={1.1} color="#FFF5E8" />
-
-      {/* Outer corona glow — billboard sprite with additive blending */}
-      <sprite ref={coronaRef} scale={[data.radius * 5.5, data.radius * 5.5, 1]}>
+    <group position={pos}>
+      {/* Corona glow — billboard sprite with additive blending */}
+      <sprite ref={coronaRef} scale={[coronaSize, coronaSize, 1]}>
         <spriteMaterial
           map={coronaTex}
           transparent
           blending={THREE.AdditiveBlending}
           depthWrite={false}
-          opacity={0.7}
+          opacity={0.65}
         />
       </sprite>
 
-      {/* Sun surface — meshBasicMaterial: no lighting, shows its own colours */}
+      {/* Star surface */}
       <mesh ref={meshRef} rotation={[0, 0, data.axialTilt * DEG2RAD]}>
-        <sphereGeometry args={[data.radius, 64, 64]} />
-        <meshBasicMaterial map={sunTexture} />
+        <sphereGeometry args={[data.radius, 32, 32]} />
+        <meshBasicMaterial color={data.color} />
       </mesh>
 
       <Html
-        position={[0, data.radius * 1.8, 0]}
+        position={[0, labelHeight, 0]}
         center
         distanceFactor={80}
         style={{ pointerEvents: 'auto' }}
       >
         <div
-          className="body-label sun-label"
+          className="body-label star-label"
+          style={{ color: data.color }}
           onClick={() => useSimulationStore.getState().setFocus(data.id)}
         >
           {data.name}

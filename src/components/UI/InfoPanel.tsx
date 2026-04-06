@@ -1,6 +1,18 @@
 import { useSimulationStore } from '../../store/simulationStore';
 import { findBodyById } from '../../data/solarSystem';
 
+function formatPeriod(days: number): string {
+  return days >= 365
+    ? `${(days / 365.25).toFixed(2)} yr`
+    : `${days.toFixed(2)} days`;
+}
+
+function formatRotation(hours: number): string {
+  return hours >= 24
+    ? `${(hours / 24).toFixed(2)} days`
+    : `${hours.toFixed(2)} hr`;
+}
+
 export function InfoPanel() {
   const focusedBodyId = useSimulationStore((s) => s.focusedBodyId);
   const setFocus = useSimulationStore((s) => s.setFocus);
@@ -12,15 +24,8 @@ export function InfoPanel() {
 
   const orbitalPeriodLabel =
     body.type !== 'star' && body.orbitalPeriod > 0
-      ? body.orbitalPeriod >= 365
-        ? `${(body.orbitalPeriod / 365.25).toFixed(2)} yr`
-        : `${body.orbitalPeriod.toFixed(2)} days`
+      ? formatPeriod(body.orbitalPeriod)
       : null;
-
-  const rotLabel =
-    body.rotationPeriod >= 24
-      ? `${(body.rotationPeriod / 24).toFixed(2)} days`
-      : `${body.rotationPeriod.toFixed(2)} hr`;
 
   return (
     <div className="info-panel">
@@ -36,10 +41,22 @@ export function InfoPanel() {
             <span>{body.realRadiusKm.toLocaleString()} km</span>
           </div>
         )}
-        {body.realDistanceAU != null && body.realDistanceAU > 0 && (
+        {body.distanceLy != null && (
+          <div className="info-row">
+            <span>Distance</span>
+            <span>{body.distanceLy.toFixed(3)} ly</span>
+          </div>
+        )}
+        {body.realDistanceAU != null && body.realDistanceAU > 0 && body.distanceLy == null && (
           <div className="info-row">
             <span>Distance</span>
             <span>{body.realDistanceAU} AU</span>
+          </div>
+        )}
+        {body.spectralType && (
+          <div className="info-row">
+            <span>Spectral Type</span>
+            <span>{body.spectralType}</span>
           </div>
         )}
         {orbitalPeriodLabel && (
@@ -50,8 +67,9 @@ export function InfoPanel() {
         )}
         <div className="info-row">
           <span>Rotation</span>
-          <span>{rotLabel}</span>
+          <span>{formatRotation(body.rotationPeriod)}</span>
         </div>
+
         <div className="info-row">
           <span>Axial Tilt</span>
           <span>{body.axialTilt}°</span>

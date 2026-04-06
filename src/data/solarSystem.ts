@@ -12,6 +12,8 @@ export interface BodyData {
   name: string;
   type: 'star' | 'planet' | 'moon';
   parentId: string | null;
+  /** Fixed world-space position for non-orbiting bodies (e.g. nearby stars). */
+  position?: [number, number, number];
   orbitalRadius: number;
   orbitalPeriod: number;
   initialAngle: number;
@@ -25,6 +27,8 @@ export interface BodyData {
   moons?: BodyData[];
   realRadiusKm?: number;
   realDistanceAU?: number;
+  distanceLy?: number;
+  spectralType?: string;
 }
 
 export const SUN_DATA: BodyData = {
@@ -332,17 +336,113 @@ export const PLANETS: BodyData[] = [
   },
 ];
 
+// Nearby stars placed at real sky positions (RA/Dec → XYZ) with scale 50 units/ly.
+// Sizes use real solar-radii ratios (Sun scene radius = 4.0 = 1 R☉).
+export const NEARBY_STARS: BodyData[] = [
+  {
+    id: 'proxima-centauri',
+    name: 'Proxima Centauri',
+    type: 'star',
+    parentId: null,
+    position: [-76, -189, -59],   // 4.24 ly · 50
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 0.56,                 // 0.14 R☉
+    color: '#FF6040', emissive: '#FF4020', emissiveIntensity: 1.2,
+    axialTilt: 0, rotationPeriod: 1800,
+    realRadiusKm: 97700, distanceLy: 4.243, spectralType: 'M5Ve',
+  },
+  {
+    id: 'alpha-centauri-a',
+    name: 'Alpha Centauri A',
+    type: 'star',
+    parentId: null,
+    position: [-82, -191, -68],   // 4.37 ly · 50
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 4.88,                 // 1.22 R☉
+    color: '#FFF5A0', emissive: '#FFE840', emissiveIntensity: 1.5,
+    axialTilt: 0, rotationPeriod: 530,
+    realRadiusKm: 849000, distanceLy: 4.370, spectralType: 'G2V',
+  },
+  {
+    id: 'alpha-centauri-b',
+    name: 'Alpha Centauri B',
+    type: 'star',
+    parentId: null,
+    position: [-74, -193, -61],   // same system, offset 8 units for separation
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 3.44,                 // 0.86 R☉
+    color: '#FFB060', emissive: '#FF9040', emissiveIntensity: 1.3,
+    axialTilt: 0, rotationPeriod: 613,
+    realRadiusKm: 598000, distanceLy: 4.370, spectralType: 'K1V',
+  },
+  {
+    id: 'barnards-star',
+    name: "Barnard's Star",
+    type: 'star',
+    parentId: null,
+    position: [-3, 24, -297],     // 5.96 ly · 50
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 0.72,                 // 0.18 R☉
+    color: '#FF5030', emissive: '#FF3010', emissiveIntensity: 1.1,
+    axialTilt: 0, rotationPeriod: 7460,
+    realRadiusKm: 125000, distanceLy: 5.958, spectralType: 'M4Ve',
+  },
+  {
+    id: 'wolf-359',
+    name: 'Wolf 359',
+    type: 'star',
+    parentId: null,
+    position: [-372, 48, 105],    // 7.78 ly · 50
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 0.64,                 // 0.16 R☉
+    color: '#FF4825', emissive: '#FF2808', emissiveIntensity: 1.1,
+    axialTilt: 0, rotationPeriod: 694,
+    realRadiusKm: 111000, distanceLy: 7.775, spectralType: 'M6Ve',
+  },
+  {
+    id: 'lalande-21185',
+    name: 'Lalande 21185',
+    type: 'star',
+    parentId: null,
+    position: [-325, 244, 82],    // 8.29 ly · 50
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 1.56,                 // 0.39 R☉
+    color: '#FF7040', emissive: '#FF5020', emissiveIntensity: 1.2,
+    axialTilt: 0, rotationPeriod: 1296,
+    realRadiusKm: 271000, distanceLy: 8.291, spectralType: 'M2V',
+  },
+  {
+    id: 'sirius-a',
+    name: 'Sirius A',
+    type: 'star',
+    parentId: null,
+    position: [-80, -125, 406],   // 8.66 ly · 50
+    orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
+    radius: 6.84,                 // 1.71 R☉
+    color: '#C0D8FF', emissive: '#A0C0FF', emissiveIntensity: 1.8,
+    axialTilt: 0, rotationPeriod: 38.4,
+    realRadiusKm: 1189800, distanceLy: 8.659, spectralType: 'A1V',
+  },
+];
+
 export const ALL_BODIES: BodyData[] = [
   SUN_DATA,
   ...PLANETS,
   ...PLANETS.flatMap(p => p.moons ?? []),
+  ...NEARBY_STARS,
 ];
 
+const BODY_MAP = new Map<string, BodyData>(ALL_BODIES.map(b => [b.id, b]));
+
 export function findBodyById(id: string): BodyData | undefined {
-  return ALL_BODIES.find(b => b.id === id);
+  return BODY_MAP.get(id);
 }
 
 export function computeWorldPosition(body: BodyData, simTime: number): THREE.Vector3 {
+  if (body.position) {
+    return new THREE.Vector3(body.position[0], body.position[1], body.position[2]);
+  }
+
   const angle = body.initialAngle + (2 * Math.PI * simTime) / body.orbitalPeriod;
   const localX = Math.cos(angle) * body.orbitalRadius;
   const localZ = Math.sin(angle) * body.orbitalRadius;
