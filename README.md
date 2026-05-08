@@ -1,6 +1,14 @@
-# Space — Interactive 3D Solar System Simulator
+# Space - Interactive 3D Space Simulator
 
-A real-time 3D simulation of our solar system built with React, Three.js, and TypeScript. Explore all 8 planets, their moons, ring systems, and orbital mechanics with controllable time simulation.
+Real-time 3D simulation of our solar system and nearby stellar neighborhood, built with React, Three.js, and TypeScript.
+
+## Views
+
+**Solar System** - All 8 planets with moons, ring systems, and orbital paths. Orbital distances are proportional to real AU values (Earth = 36 scene units = 1 AU). Planet sizes are exaggerated for visibility.
+
+**Interstellar** - Nearby stars (Proxima Centauri, Alpha Centauri A/B, Sirius, and more) placed at real sky positions using RA/Dec to XYZ conversion at 50 units/light-year.
+
+**Milky Way** - Galaxy-scale view.
 
 ## Tech Stack
 
@@ -26,57 +34,65 @@ Dev server runs at `http://localhost:5173` with HMR.
 | Command | Description |
 |---|---|
 | `npm run dev` | Start development server |
-| `npm run build` | Type-check + production build → `dist/` |
+| `npm run build` | Type-check + production build to `dist/` |
 | `npm run preview` | Preview production build locally |
 | `npm run lint` | Run ESLint |
 
-No environment variables required — the app is fully self-contained.
+No environment variables required.
 
 ## Project Structure
 
 ```
 src/
-├── main.tsx                    # Entry point
-├── App.tsx                     # Root component
+├── main.tsx
+├── App.tsx                         # View switcher (solar system / interstellar / milky way)
 ├── components/
 │   ├── SolarSystem/
-│   │   ├── SolarSystem.tsx     # Three.js Canvas wrapper
-│   │   └── Scene.tsx           # 3D scene setup (lighting, camera, stars)
+│   │   ├── SolarSystem.tsx         # Three.js Canvas wrapper
+│   │   └── Scene.tsx               # 3D scene (lighting, camera, stars, bodies)
+│   ├── Interstellar/
+│   │   ├── InterstellarView.tsx
+│   │   └── InterstellarScene.tsx
+│   ├── MilkyWay/
+│   │   ├── MilkyWayView.tsx
+│   │   └── MilkyWayScene.tsx
 │   ├── Bodies/
-│   │   ├── Sun.tsx             # Sun mesh + point light
-│   │   ├── Planet.tsx          # Planet mesh + texture
-│   │   ├── Moon.tsx            # Moon mesh
-│   │   ├── RingSystem.tsx      # Ring geometry (Saturn, Uranus)
-│   │   └── OrbitalPath.tsx     # Orbital ellipse visualization
+│   │   ├── Sun.tsx
+│   │   ├── Planet.tsx
+│   │   ├── Moon.tsx
+│   │   ├── NearbyStar.tsx
+│   │   ├── RingSystem.tsx
+│   │   └── OrbitalPath.tsx
 │   ├── Orbit/
-│   │   └── OrbitalMechanics.tsx # Orbital position calculation + useFrame loop
+│   │   └── OrbitalMechanics.tsx    # Orbital position via useFrame
 │   └── UI/
-│       ├── HUD.tsx             # HUD layout container
-│       ├── TimeControls.tsx    # Play/pause + speed presets
-│       ├── FocusMenu.tsx       # Body selection dropdown
-│       └── InfoPanel.tsx       # Selected body info panel
+│       ├── HUD.tsx
+│       ├── TimeControls.tsx
+│       ├── FocusMenu.tsx
+│       └── InfoPanel.tsx
 ├── data/
-│   └── solarSystem.ts          # All celestial body data + utility functions
+│   ├── solarSystem.ts              # Celestial body data + computeWorldPosition
+│   └── starCatalog.ts              # Nearby star positions and spectral data
 ├── store/
-│   └── simulationStore.ts      # Zustand store (time, paused, timeScale, focus)
+│   └── simulationStore.ts          # Zustand store (time, paused, timeScale, focus)
 └── hooks/
-    └── usePlanetFocus.ts       # Camera animation on body focus
+    └── usePlanetFocus.ts           # Camera animation on body focus
 ```
 
 ## Architecture Notes
 
-**Rendering loop:** `OrbitalMechanics.tsx` uses `useFrame` to advance simulated time and update planet/moon positions each frame. Time state is read imperatively via `getState()` to avoid unnecessary re-renders inside the animation loop.
+**Rendering loop:** `OrbitalMechanics.tsx` uses `useFrame` to update planet/moon positions each frame. Time state is read via `getState()` to avoid re-renders inside the animation loop.
 
-**State:** `simulationStore` holds four values — `simulatedTime` (days from J2000.0), `isPaused`, `timeScale` (days/sec), and `focusedBodyId`. All UI controls and 3D components subscribe to this store.
+**State:** `simulationStore` holds `simulatedTime` (days from J2000.0), `isPaused`, `timeScale` (days/sec), and `focusedBodyId`.
 
-**Data:** `solarSystem.ts` defines a `BodyData` interface and exports a typed array of all bodies. Each entry carries both real physical values (`realRadiusKm`, `realDistanceAU`) and display-scaled values (`radius`, `orbitalRadius`) since true-to-scale would make planets invisible. `findBodyById()` and `computeWorldPosition()` are utility functions exported from this file.
+**Data:** `solarSystem.ts` defines `BodyData` and exports all bodies. Each entry carries real physical values (`realRadiusKm`, `realDistanceAU`) alongside display-scaled values (`radius`, `orbitalRadius`). Orbital radii use 36 units/AU so relative distances are accurate; planet radii are exaggerated so they are visible.
 
-**Camera:** `usePlanetFocus.ts` subscribes to `focusedBodyId` and animates the camera-controls target to the selected body's current world position.
+**Camera:** `usePlanetFocus.ts` subscribes to `focusedBodyId` and animates the camera target to the selected body's world position.
 
-**'use no memo' directives:** Components that use `useFrame` opt out of React Compiler memoization with `'use no memo'` at the top of the file. This is intentional — the compiler's automatic memoization interferes with Three.js side effects in the render loop.
+**`use no memo` directives:** Components using `useFrame` opt out of React Compiler memoization. The compiler's automatic memoization interferes with Three.js side effects in the render loop.
 
-**Time simulation:** The epoch is J2000.0 (Jan 1, 2000 12:00 TT). Simulated time is in Earth days. Speed presets range from 1 day/sec to 100 years/sec. All orbital periods match real values.
+**Time simulation:** Epoch is J2000.0 (Jan 1, 2000 12:00 TT). Simulated time is in Earth days. Speed presets range from 1 day/sec to 100 years/sec.
 
 ## No Tests
 
-There is no test suite configured. Vitest or Jest would need to be added if testing is required.
+No test suite configured. Add Vitest or Jest if testing is needed.
