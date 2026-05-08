@@ -10,7 +10,7 @@ export function SolarSystem({ onSwitchView }: Props) {
   return (
     <div className="solar-system-root">
       <Canvas
-        camera={{ fov: 60, near: 0.1, far: 100000, position: [0, 2000, 4000] }}
+        camera={{ fov: 60, near: 0.1, far: 200000, position: [0, 2000, 4000] }}
         gl={{ antialias: true, logarithmicDepthBuffer: true }}
       >
         <Scene />
