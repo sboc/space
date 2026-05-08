@@ -88,7 +88,7 @@ export function Scene() {
   return (
     <>
       <ambientLight intensity={0.10} />
-      <Stars radius={4000} depth={500} count={8000} factor={4} fade speed={0} />
+      <Stars radius={80000} depth={10000} count={8000} factor={4} fade speed={0} />
 
       <Sun data={SUN_DATA} />
 

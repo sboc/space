@@ -55,7 +55,7 @@ export const PLANETS: BodyData[] = [
     name: 'Mercury',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 14,
+    orbitalRadius: 333,
     orbitalPeriod: 87.97,
     initialAngle: 0.8,
     radius: 0.22,
@@ -72,7 +72,7 @@ export const PLANETS: BodyData[] = [
     name: 'Venus',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 26,
+    orbitalRadius: 621,
     orbitalPeriod: 224.70,
     initialAngle: 2.1,
     radius: 0.48,
@@ -89,7 +89,7 @@ export const PLANETS: BodyData[] = [
     name: 'Earth',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 36,
+    orbitalRadius: 860,
     orbitalPeriod: 365.25,
     initialAngle: 4.0,
     radius: 0.50,
@@ -124,7 +124,7 @@ export const PLANETS: BodyData[] = [
     name: 'Mars',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 55,
+    orbitalRadius: 1310,
     orbitalPeriod: 686.97,
     initialAngle: 1.0,
     radius: 0.28,
@@ -175,7 +175,7 @@ export const PLANETS: BodyData[] = [
     name: 'Jupiter',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 187,
+    orbitalRadius: 4473,
     orbitalPeriod: 4332.59,
     initialAngle: 3.5,
     radius: 1.20,
@@ -258,7 +258,7 @@ export const PLANETS: BodyData[] = [
     name: 'Saturn',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 343,
+    orbitalRadius: 8197,
     orbitalPeriod: 10759.22,
     initialAngle: 0.4,
     radius: 1.00,
@@ -299,7 +299,7 @@ export const PLANETS: BodyData[] = [
     name: 'Uranus',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 691,
+    orbitalRadius: 16493,
     orbitalPeriod: 30688.5,
     initialAngle: 2.7,
     radius: 0.65,
@@ -322,7 +322,7 @@ export const PLANETS: BodyData[] = [
     name: 'Neptune',
     type: 'planet',
     parentId: 'sun',
-    orbitalRadius: 1083,
+    orbitalRadius: 25844,
     orbitalPeriod: 60195.0,
     initialAngle: 4.8,
     radius: 0.62,
@@ -344,7 +344,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: 'Proxima Centauri',
     type: 'star',
     parentId: null,
-    position: [-76, -189, -59],   // 4.24 ly · 50
+    position: [-10640, -26460, -8260],   // 4.24 ly · 7000
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 0.56,                 // 0.14 R☉
     color: '#FF6040', emissive: '#FF4020', emissiveIntensity: 1.2,
@@ -356,7 +356,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: 'Alpha Centauri A',
     type: 'star',
     parentId: null,
-    position: [-82, -191, -68],   // 4.37 ly · 50
+    position: [-11480, -26740, -9520],   // 4.37 ly · 7000
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 4.88,                 // 1.22 R☉
     color: '#FFF5A0', emissive: '#FFE840', emissiveIntensity: 1.5,
@@ -368,7 +368,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: 'Alpha Centauri B',
     type: 'star',
     parentId: null,
-    position: [-74, -193, -61],   // same system, offset 8 units for separation
+    position: [-10360, -27020, -8540],   // same system, offset ~1000 units for separation
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 3.44,                 // 0.86 R☉
     color: '#FFB060', emissive: '#FF9040', emissiveIntensity: 1.3,
@@ -380,7 +380,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: "Barnard's Star",
     type: 'star',
     parentId: null,
-    position: [-3, 24, -297],     // 5.96 ly · 50
+    position: [-420, 3360, -41580],     // 5.96 ly · 7000
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 0.72,                 // 0.18 R☉
     color: '#FF5030', emissive: '#FF3010', emissiveIntensity: 1.1,
@@ -392,7 +392,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: 'Wolf 359',
     type: 'star',
     parentId: null,
-    position: [-372, 48, 105],    // 7.78 ly · 50
+    position: [-52080, 6720, 14700],    // 7.78 ly · 7000
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 0.64,                 // 0.16 R☉
     color: '#FF4825', emissive: '#FF2808', emissiveIntensity: 1.1,
@@ -404,7 +404,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: 'Lalande 21185',
     type: 'star',
     parentId: null,
-    position: [-325, 244, 82],    // 8.29 ly · 50
+    position: [-45500, 34160, 11480],    // 8.29 ly · 7000
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 1.56,                 // 0.39 R☉
     color: '#FF7040', emissive: '#FF5020', emissiveIntensity: 1.2,
@@ -416,7 +416,7 @@ export const NEARBY_STARS: BodyData[] = [
     name: 'Sirius A',
     type: 'star',
     parentId: null,
-    position: [-80, -125, 406],   // 8.66 ly · 50
+    position: [-11200, -17500, 56840],   // 8.66 ly · 7000
     orbitalRadius: 0, orbitalPeriod: 1, initialAngle: 0,
     radius: 6.84,                 // 1.71 R☉
     color: '#C0D8FF', emissive: '#A0C0FF', emissiveIntensity: 1.8,
