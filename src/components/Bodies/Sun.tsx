@@ -31,7 +31,7 @@ export function Sun({ data }: Props) {
 
   return (
     <group>
-      <pointLight intensity={18} distance={0} decay={1.1} color="#FFF5E8" />
+      <pointLight intensity={26} distance={0} decay={1.0} color="#FFF5E8" />
 
       {/* Outer corona glow — billboard sprite with additive blending */}
       <sprite ref={coronaRef} scale={[data.radius * 5.5, data.radius * 5.5, 1]}>

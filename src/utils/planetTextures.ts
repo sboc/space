@@ -164,7 +164,7 @@ function createMoonTexture() {
   return createTexture(256, 128, (nx, ny) => {
     const large = fbm(nx * 2.5, ny * 2.5, 4);
     const detail = fbm(nx * 11, ny * 11, 3);
-    const base = large < 0.42 ? 80 + detail * 35 : 150 + detail * 35;
+    const base = large < 0.42 ? 110 + detail * 40 : 175 + detail * 40;
     return [base, base, base - 4];
   });
 }
@@ -196,7 +196,7 @@ function createGanymedeTexture() {
   return createTexture(256, 128, (nx, ny) => {
     const region = fbm(nx * 2.5, ny * 2.5, 4);
     const detail = fbm(nx * 9, ny * 9, 3);
-    const v = region < 0.44 ? 85 + detail * 42 : 148 + detail * 32;
+    const v = region < 0.44 ? 115 + detail * 42 : 175 + detail * 32;
     return [v, v - 5, v - 9];
   });
 }
@@ -204,7 +204,7 @@ function createGanymedeTexture() {
 function createCallistoTexture() {
   return createTexture(256, 128, (nx, ny) => {
     const base = fbm(nx * 5, ny * 5, 4);
-    const v = 68 + base * 62;
+    const v = 100 + base * 70;
     return [v, v - 4, v - 7];
   });
 }
@@ -320,9 +320,9 @@ export function getBodyTexture(id: string): THREE.CanvasTexture {
     case 'ganymede': texture = createGanymedeTexture(); break;
     case 'callisto': texture = createCallistoTexture(); break;
     case 'titan':    texture = createTitanTexture();   break;
-    case 'phobos':   texture = createRockyMoonTexture(118, 103, 78); break;
-    case 'deimos':   texture = createRockyMoonTexture(133, 120, 96); break;
-    default:         texture = createRockyMoonTexture(148, 143, 138); break;
+    case 'phobos':   texture = createRockyMoonTexture(148, 133, 108); break;
+    case 'deimos':   texture = createRockyMoonTexture(163, 150, 126); break;
+    default:         texture = createRockyMoonTexture(175, 170, 165); break;
   }
 
   textureCache.set(id, texture);
@@ -363,22 +363,22 @@ export function getStarCoronaTexture(r: number, g: number, b: number): THREE.Can
 // ---- Per-body PBR material properties ------------------------------------
 
 export const BODY_ROUGHNESS: Record<string, number> = {
-  mercury:  0.85,
-  venus:    0.60,
-  earth:    0.50,
-  mars:     0.82,
-  jupiter:  0.50,
-  saturn:   0.55,
-  uranus:   0.40,
-  neptune:  0.40,
-  moon:     0.88,
-  io:       0.70,
-  europa:   0.40,
-  ganymede: 0.82,
-  callisto: 0.88,
-  titan:    0.65,
-  phobos:   0.90,
-  deimos:   0.90,
+  mercury:  0.65,
+  venus:    0.42,
+  earth:    0.35,
+  mars:     0.62,
+  jupiter:  0.35,
+  saturn:   0.38,
+  uranus:   0.28,
+  neptune:  0.28,
+  moon:     0.68,
+  io:       0.52,
+  europa:   0.25,
+  ganymede: 0.62,
+  callisto: 0.68,
+  titan:    0.48,
+  phobos:   0.70,
+  deimos:   0.70,
 };
 
 export const BODY_METALNESS: Record<string, number> = {
