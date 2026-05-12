@@ -20,7 +20,11 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   timeScale: 365,
   focusedBodyId: null,
   isFollowing: false,
-  tick: (delta) => set((s) => ({ simulatedTime: s.simulatedTime + delta * s.timeScale })),
+  // Cap delta at ~33 ms so tab-reactivation spikes or GC pauses don't cause
+  // visible planet position jumps at high time scales.
+  tick: (delta) => set((s) => ({
+    simulatedTime: s.simulatedTime + Math.min(delta, 1 / 30) * s.timeScale,
+  })),
   setTimeScale: (scale) => set({ timeScale: scale }),
   togglePause: () => set((s) => ({ isPaused: !s.isPaused })),
   setFocus: (id) => set({ focusedBodyId: id, isFollowing: false }),

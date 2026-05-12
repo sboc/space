@@ -44,7 +44,14 @@ export function lerpColor(a: RGB, b: RGB, t: number): RGB {
   return [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 }
 
-/** Write a W×H canvas texture using a per-pixel colour function. */
+/** Write a W×H canvas texture using a per-pixel colour function.
+ *
+ * Applies a seamless horizontal wrap so the texture has no visible seam where
+ * u=0 and u=1 meet on the sphere.  Technique: blend each pixel with a
+ * half-offset sample using a sin² weight.  At nx=0 and nx=1 the weight is 0
+ * (pure offset sample, same value at both edges → no seam).  At nx=0.5 the
+ * weight is 1 (pure direct sample, offset sample's seam is hidden here).
+ */
 export function createTexture(
   width: number,
   height: number,
@@ -59,11 +66,18 @@ export function createTexture(
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const [r, g, b] = fn(x / width, y / height);
+      const nx = x / width;
+      const ny = y / height;
+
+      const [r1, g1, b1] = fn(nx, ny);
+      const [r2, g2, b2] = fn((nx + 0.5) % 1.0, ny);
+      const w = Math.sin(nx * Math.PI);
+      const ww = w * w; // 0 at seam edges, 1 at opposite longitude
+
       const i = (y * width + x) * 4;
-      data[i]     = Math.floor(clamp(r, 0, 255));
-      data[i + 1] = Math.floor(clamp(g, 0, 255));
-      data[i + 2] = Math.floor(clamp(b, 0, 255));
+      data[i]     = Math.floor(clamp(lerp(r2, r1, ww), 0, 255));
+      data[i + 1] = Math.floor(clamp(lerp(g2, g1, ww), 0, 255));
+      data[i + 2] = Math.floor(clamp(lerp(b2, b1, ww), 0, 255));
       data[i + 3] = 255;
     }
   }
